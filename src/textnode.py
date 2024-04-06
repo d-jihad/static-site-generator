@@ -1,24 +1,13 @@
+from dataclasses import dataclass
 from typing import Optional
 
 from src.htmlnode import LeafNode
 
-
+@dataclass
 class TextNode:
-    def __init__(self, text: str, text_type: str, url: Optional[str] = None):
-        self.text = text
-        self.text_type = text_type
-        self.url = url
-
-    def __eq__(self, value) -> bool:
-        return (
-                type(self) == type(value) and
-                self.text == value.text and
-                self.text_type == value.text_type and
-                self.url == value.url
-        )
-
-    def __repr__(self) -> str:
-        return f'TextNode({self.text}, {self.text_type}, {self.url})'
+    text: str
+    text_type: str
+    url: Optional[str] = None
 
 
 def text_node_to_html_node(text_node: TextNode) -> LeafNode:
@@ -37,5 +26,5 @@ def text_node_to_html_node(text_node: TextNode) -> LeafNode:
             raise ValueError("Invalid text type")
 
 
-def split_nodes_delimiter(old_nodes, delimiter, text_type):
+def split_nodes_delimiter(old_nodes: list[TextNode], delimiter: str, text_type: str):
     raise NotImplementedError

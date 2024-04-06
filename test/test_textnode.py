@@ -24,3 +24,7 @@ class TestTextNode(unittest.TestCase):
     def test_no_url(self):
         node = TextNode("This is a text node", "bold")
         self.assertEqual(node.url, None)
+
+    def test_repr(self):
+        node = TextNode("This is a text node", "bold")
+        self.assertEqual(repr(node), "TextNode(text='This is a text node', text_type='bold', url=None)")
