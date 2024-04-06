@@ -1,3 +1,10 @@
-from textnode import TextNode
+from textnode import TextNode, TextType
 
-print(TextNode('This is a text node', 'bold', 'https://www.boot.dev'))
+
+def main():
+    print(TextNode('This is a text node', TextType.BOLD, 'https://www.boot.dev'))
+    return 0
+
+if __name__ == "__main__":
+    import sys
+    sys.exit(main())
