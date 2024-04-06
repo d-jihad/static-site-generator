@@ -79,11 +79,11 @@ def url_type_format(node: TextNode) -> str:
             raise ValueError("Invalid with url type")
 
 
-def split_nodes_with_url(old_nodes, extract_type: TextType):
+def split_nodes_with_url(old_nodes, to_extract: TextType):
     new_nodes = []
     for node in old_nodes:
         original_text = node.text
-        elements = extract_markdown_with_url(original_text, extract_type)
+        elements = extract_markdown_with_url(original_text, to_extract)
         if not elements:
             new_nodes.append(node)
         for el in elements:
@@ -96,7 +96,35 @@ def split_nodes_with_url(old_nodes, extract_type: TextType):
             new_nodes.append(el)
             original_text = original_text[len(split_text[0]) + len(el_match):]
 
+        if original_text:
+            new_nodes.append(TextNode(original_text, node.text_type))
+
     return new_nodes
 
 
+def text_to_textnodes(text: str):
+    root = TextNode(text, TextType.TEXT)
+    to_process = [root]
+    processed = []
+
+    while to_process:
+        node = to_process.pop(0)
+        if node.text_type == TextType.TEXT:
+            if re.search(InlineRegexes.BOLD, node.text):
+                to_process.extend(split_nodes_delimiter([node], "**", TextType.BOLD))
+            elif re.search(InlineRegexes.ITALIC, node.text):
+                to_process.extend(split_nodes_delimiter([node], "*", TextType.ITALIC))
+            elif re.search(InlineRegexes.CODE, node.text):
+                to_process.extend(split_nodes_delimiter([node], "`", TextType.CODE))
+            # image before link, because link regex is a subset of image regex
+            elif re.search(InlineRegexes.IMAGE, node.text):
+                to_process.extend(split_nodes_with_url([node], TextType.IMAGE))
+            elif re.search(InlineRegexes.LINK, node.text):
+                to_process.extend(split_nodes_with_url([node], TextType.LINK))
+            else:
+                processed.append(node)
+        else:
+            processed.append(node)
+
+    return processed
 

@@ -1,6 +1,7 @@
 import unittest
 
-from src.inline_markdown import split_nodes_delimiter, extract_markdown_with_url, split_nodes_with_url
+from src.inline_markdown import split_nodes_delimiter, extract_markdown_with_url, split_nodes_with_url, \
+    text_to_textnodes
 from src.textnode import TextNode, TextType
 
 
@@ -35,7 +36,7 @@ class TestInlineMarkdown(unittest.TestCase):
             TextNode(".", TextType.TEXT),
         ], new_nodes)
 
-    def test_extract_markdown_with_url(self):
+    def test_extract_markdown_image(self):
         text = "This is a text with a ![a boot](https://www.boot.dev) and another ![another boot](https://www.boot.dev) image."
         images = extract_markdown_with_url(text, TextType.IMAGE)
 
@@ -44,12 +45,13 @@ class TestInlineMarkdown(unittest.TestCase):
             TextNode("another boot", TextType.IMAGE, "https://www.boot.dev")
         ])
 
+    def test_extract_markdown_link(self):
         text = "This is a text with a [a boot](https://www.boot.dev) and another [another boot](https://www.boot.dev) link."
         links = extract_markdown_with_url(text, TextType.LINK)
 
         self.assertEqual(links, [
             TextNode("a boot", TextType.LINK, "https://www.boot.dev"),
-            TextNode("another boot", TextType.LINK, "https://www.boot.dev")
+            TextNode("another boot", TextType.LINK, "https://www.boot.dev"),
         ])
 
     def test_split_nodes_image(self):
@@ -82,5 +84,24 @@ class TestInlineMarkdown(unittest.TestCase):
             TextNode("This is text with an ", TextType.TEXT),
             TextNode("boot", TextType.LINK, "https://www.boot.dev"),
             TextNode(" and another ", TextType.TEXT),
-            TextNode("another boot", TextType.LINK, "https://www.boot.dev")
+            TextNode("another boot", TextType.LINK, "https://www.boot.dev"),
+            TextNode(" link.", TextType.TEXT)
+        ])
+
+    def test_text_to_textnodes(self):
+        text = 'This is **text** with an *italic* word and a `code block` and an ![image](https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/zjjcJKZ.png) and a [link](https://boot.dev)'
+        nodes = text_to_textnodes(text)
+
+        self.assertEqual(nodes, [
+            TextNode("This is ", TextType.TEXT),
+            TextNode("text", TextType.BOLD),
+            TextNode(" with an ", TextType.TEXT),
+            TextNode("italic", TextType.ITALIC),
+            TextNode(" word and a ", TextType.TEXT),
+            TextNode("code block", TextType.CODE),
+            TextNode(" and an ", TextType.TEXT),
+            TextNode("image", TextType.IMAGE,
+                     "https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/zjjcJKZ.png"),
+            TextNode(" and a ", TextType.TEXT),
+            TextNode("link", TextType.LINK, "https://boot.dev"),
         ])
