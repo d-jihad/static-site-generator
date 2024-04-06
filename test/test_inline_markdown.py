@@ -1,7 +1,8 @@
 import unittest
 
-from src.inline_markdown import split_nodes_delimiter, extract_markdown_images, extract_markdown_links
+from src.inline_markdown import split_nodes_delimiter, extract_markdown_with_url, split_nodes_with_url
 from src.textnode import TextNode, TextType
+
 
 class TestInlineMarkdown(unittest.TestCase):
 
@@ -34,20 +35,52 @@ class TestInlineMarkdown(unittest.TestCase):
             TextNode(".", TextType.TEXT),
         ], new_nodes)
 
-    def test_extract_images(self):
+    def test_extract_markdown_with_url(self):
         text = "This is a text with a ![a boot](https://www.boot.dev) and another ![another boot](https://www.boot.dev) image."
-        images = extract_markdown_images(text)
+        images = extract_markdown_with_url(text, TextType.IMAGE)
 
         self.assertEqual(images, [
             TextNode("a boot", TextType.IMAGE, "https://www.boot.dev"),
             TextNode("another boot", TextType.IMAGE, "https://www.boot.dev")
         ])
 
-    def text_extract_links(self):
         text = "This is a text with a [a boot](https://www.boot.dev) and another [another boot](https://www.boot.dev) link."
-        links = extract_markdown_links(text)
+        links = extract_markdown_with_url(text, TextType.LINK)
 
         self.assertEqual(links, [
             TextNode("a boot", TextType.LINK, "https://www.boot.dev"),
+            TextNode("another boot", TextType.LINK, "https://www.boot.dev")
+        ])
+
+    def test_split_nodes_image(self):
+        node = TextNode(
+            "This is text with an ![image](https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/zjjcJKZ.png) and another ![second image](https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/3elNhQu.png)",
+            TextType.TEXT
+        )
+        new_nodes = split_nodes_with_url([node], TextType.IMAGE)
+
+        self.assertEqual(new_nodes, [
+            TextNode("This is text with an ", TextType.TEXT),
+            TextNode("image", TextType.IMAGE,
+                     "https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/zjjcJKZ.png"),
+            TextNode(" and another ", TextType.TEXT),
+            TextNode(
+                "second image", TextType.IMAGE,
+                "https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/3elNhQu.png"
+            )
+        ])
+
+    def test_split_nodes_link(self):
+        node = TextNode(
+            "This is text with an [boot](https://www.boot.dev) and another [another boot](https://www.boot.dev) link.",
+            TextType.TEXT
+        )
+
+        new_nodes = split_nodes_with_url([node], TextType.LINK)
+
+        self.assertEqual(new_nodes, [
+            TextNode("This is text with an ", TextType.TEXT),
+            TextNode("boot", TextType.LINK, "https://www.boot.dev"),
+            TextNode(" and another ", TextType.TEXT),
             TextNode("another boot", TextType.LINK, "https://www.boot.dev")
         ])

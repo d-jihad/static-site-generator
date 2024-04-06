@@ -50,17 +50,53 @@ def split_nodes_delimiter(old_nodes: list[TextNode], delimiter: str, text_type: 
     return new_nodes
 
 
-def extract_markdown_images(text: str):
-    matches = re.finditer(InlineRegexes.IMAGE, text)
-    images = []
-    for match in matches:
-        images.append(TextNode(match.group(2), TextType.IMAGE, match.group(3)))
-    return images
+def url_type_to_regex(text_type: TextType) -> str:
+    match text_type:
+        case TextType.LINK:
+            return InlineRegexes.LINK
+        case TextType.IMAGE:
+            return InlineRegexes.IMAGE
+        case _:
+            raise ValueError("Invalid with url type")
 
 
-def extract_markdown_links(text: str):
-    matches = re.finditer(InlineRegexes.LINK, text)
-    links = []
+def extract_markdown_with_url(text: str, text_type: TextType):
+    regex = url_type_to_regex(text_type)
+    matches = re.finditer(regex, text)
+
+    elements = []
     for match in matches:
-        links.append(TextNode(match.group(2), TextType.LINK, match.group(3)))
-    return links
+        elements.append(TextNode(match.group(2), text_type, match.group(3)))
+    return elements
+
+def url_type_format(node: TextNode) -> str:
+    match node.text_type:
+        case TextType.LINK:
+            return f"[{node.text}]({node.url})"
+        case TextType.IMAGE:
+            return f"![{node.text}]({node.url})"
+        case _:
+            raise ValueError("Invalid with url type")
+
+
+def split_nodes_with_url(old_nodes, extract_type: TextType):
+    new_nodes = []
+    for node in old_nodes:
+        original_text = node.text
+        elements = extract_markdown_with_url(original_text, extract_type)
+        if not elements:
+            new_nodes.append(node)
+        for el in elements:
+            el_match = url_type_format(el)
+            split_text = original_text.split(el_match, 1)
+
+            if len(split_text) >= 1:
+                new_nodes.append(TextNode(split_text[0], node.text_type))
+
+            new_nodes.append(el)
+            original_text = original_text[len(split_text[0]) + len(el_match):]
+
+    return new_nodes
+
+
+
