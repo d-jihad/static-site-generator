@@ -42,7 +42,6 @@ def generate_page(from_path, template_path, dest_path):
     if not os.path.exists(os.path.dirname(dest_path)):
         os.makedirs(os.path.dirname(dest_path))
 
-    # print(dest_path)
     with open(dest_path, "w") as f:
         doc_title = extract_title(content)
         html_content = block_markdown.markdown_to_html_node(content).to_html()
