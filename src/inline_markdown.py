@@ -60,14 +60,16 @@ def url_type_to_regex(text_type: TextType) -> str:
             raise ValueError("Invalid with url type")
 
 
-def extract_markdown_with_url(text: str, text_type: TextType):
+def extract_markdown_with_url(text: str, text_type: TextType) -> list[TextNode]:
     regex = url_type_to_regex(text_type)
     matches = re.finditer(regex, text)
 
     elements = []
     for match in matches:
-        elements.append(TextNode(match.group(2), text_type, match.group(3)))
+        node = TextNode(match.group(2), text_type, match.group(3))
+        elements.append(node)
     return elements
+
 
 def url_type_format(node: TextNode) -> str:
     match node.text_type:
@@ -90,7 +92,7 @@ def split_nodes_with_url(old_nodes, to_extract: TextType):
             el_match = url_type_format(el)
             split_text = original_text.split(el_match, 1)
 
-            if len(split_text) >= 1:
+            if split_text[0]:
                 new_nodes.append(TextNode(split_text[0], node.text_type))
 
             new_nodes.append(el)

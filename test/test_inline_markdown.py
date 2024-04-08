@@ -74,14 +74,14 @@ class TestInlineMarkdown(unittest.TestCase):
 
     def test_split_nodes_link(self):
         node = TextNode(
-            "This is text with an [boot](https://www.boot.dev) and another [another boot](https://www.boot.dev) link.",
+            "This is text with a [boot](https://www.boot.dev) and another [another boot](https://www.boot.dev) link.",
             TextType.TEXT
         )
 
         new_nodes = split_nodes_with_url([node], TextType.LINK)
 
         self.assertEqual(new_nodes, [
-            TextNode("This is text with an ", TextType.TEXT),
+            TextNode("This is text with a ", TextType.TEXT),
             TextNode("boot", TextType.LINK, "https://www.boot.dev"),
             TextNode(" and another ", TextType.TEXT),
             TextNode("another boot", TextType.LINK, "https://www.boot.dev"),
