@@ -1,5 +1,4 @@
 import os
-import re
 import shutil
 
 from src import block_markdown
