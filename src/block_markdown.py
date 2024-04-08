@@ -112,7 +112,7 @@ def heading_to_html_node(block: str):
 def olist_to_html_node(block: str):
     html_items = []
     for line in block.split("\n"):
-        text = line[3:]
+        text = line[2:].strip()
         children = text_to_children(text)
         html_items.append(ParentNode("li", children))
 
@@ -122,7 +122,7 @@ def olist_to_html_node(block: str):
 def ulist_to_html_node(block: str):
     html_items = []
     for line in block.split("\n"):
-        text = line[3:]
+        text = line[1:].strip()
         children = text_to_children(text)
         html_items.append(ParentNode("li", children))
 
